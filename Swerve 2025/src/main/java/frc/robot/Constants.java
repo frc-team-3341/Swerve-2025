@@ -4,16 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.swerve.SwerveModuleIOSparkMax;
 
@@ -72,6 +63,7 @@ public final class Constants {
         public static final double maxChassisAngularVelocity = Math.PI * 1.0;
         
         //distance between swerve modules on x and y axis
+        //TODO FIGURE OUT WHAT THE MODULE DISTANCES ARE FOR EACH SWERVE CHASSIS
         public static final double swerveModuleXdistance = Units.inchesToMeters(22); 
         public static final double swerveModuleYdistance = Units.inchesToMeters(22); 
         
@@ -143,40 +135,6 @@ public final class Constants {
         public static final double turnkP = 0.7; 
         public static final double turnkI = 0.0;
         public static final double turnkD = 0.0;    
-    }
-
-    public static final class VisionConstants {
-        public static final String kBottomCameraName = "bob";
-        public static final String kRightCameraName = "TopCamera";
-        // See https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system
-        // for why these values the way they are. In short x is positive towards the front, y is positive to left, z is positive to the sky
-        public static final Transform3d kBottomRobotToCam =
-                new Transform3d(new Translation3d(Units.inchesToMeters(12.75), Units.inchesToMeters(0), Units.inchesToMeters(12.5)), new Rotation3d(0, 0, 0));
-
-        private static final double topCamPitch = Units.degreesToRadians(25.0);
-        public static final Transform3d kTopRobotToCam =
-                new Transform3d(new Translation3d(Units.inchesToMeters(9), Units.inchesToMeters(9.75), Units.inchesToMeters(35.5)),
-                new Rotation3d(0, -topCamPitch, 0));
-        // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout kTagLayout =
-                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
-        // The standard deviations of our vision estimated poses, which affect correction rate
-        // (Fake values. Experiment and determine estimation noise on an actual robot.)
-        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
-        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
-
-    }
-
-    public static final class ElevatorConstants {
-        private static final double MotorKV = 473.0; // For neo v1.1
-        public static final double FF = 1/MotorKV; // For neo v1.1
-        public static final double P = .0085;
-        public static final int elevatorGearRatio = 45;
-    }
-
-    public static final class CoralManipulatorConstants{
-        public static final int pivotGearRatio = 81;
     }
 
     public static final int PDH_can_id = 15;

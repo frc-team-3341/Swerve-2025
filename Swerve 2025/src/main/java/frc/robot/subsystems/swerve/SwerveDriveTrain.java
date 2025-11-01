@@ -91,22 +91,16 @@ public class SwerveDriveTrain extends SubsystemBase {
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
    private final StructPublisher<Pose2d> poseEstimatorPublisher;
-   private Vision vision;
 
    private SwerveDriveSimulation mapleSimDrive;
 
-   private boolean enableVision = true;
-   private boolean enablePoseEst = true;
-
-   private SendableChooser<Command> autoChooser = new SendableChooser<>();
-   private DoubleSupplier leftTriggerVal;
    /**
     * Creates a new SwerveDrive object. Intended to work both with real modules and
     * simulation.
     * 
     * @author Aric Volman
     */
-   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BL, SwerveModuleIOSparkMax BR, Vision vision) {
+   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BL, SwerveModuleIOSparkMax BR) {
       // Assign modules to their object
       this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BL, BR};
 
@@ -121,11 +115,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.poseEstimator = new SwerveDrivePoseEstimator(this.kinematics, Rotation2d.fromDegrees(getGyroYaw()),
             this.modulePositions, startingPose);
       this.field = new Field2d();
-
-      this.vision = vision;
-      this.leftTriggerVal = leftTriggerVal;
-
-      createAuto();
       
       this.chassisSpeeds =  new ChassisSpeeds(0.0, 0.0, 0.0);
       statePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates", SwerveModuleState.struct).publish();
@@ -140,43 +129,9 @@ public class SwerveDriveTrain extends SubsystemBase {
       }
    }
 
-   private void createAuto()  {
-      try {
-         RobotConfig config = RobotConfig.fromGUISettings();
-
-         AutoBuilder.configure(
-            this::getPoseFromEstimator, // Robot pose supplier
-            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            this::driveRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants                                                      
-            ),
-            config,
-            () -> {
-               // Boolean supplier that controls when the path will be mirrored for the red
-               // alliance
-               // This will flip the path being followed to the red side of the field.
-               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-               var alliance = DriverStation.getAlliance();
-               if (alliance.isPresent()) {
-               return alliance.get() == DriverStation.Alliance.Red;
-               }
-               return false;
-            },
-            this); // Reference to this subsystem to set requirements
-         autoChooser = AutoBuilder.buildAutoChooser("S2_H1_C2_Auto");
-         SmartDashboard.putData(autoChooser);
-      } catch (Exception e) {
-         //If an exception is thrown here we are really in trouble
-         e.printStackTrace();
-         System.out.println("uh oh auto is really broken");
-      }  
-   }
 
    public Command getAutonomousCommand() {
-      return autoChooser.getSelected();
+      return null;
    }
 
    public void periodic() {
@@ -184,27 +139,6 @@ public class SwerveDriveTrain extends SubsystemBase {
 
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
-
-      // Correct pose estimate with vision measurements
-      if (enableVision && enablePoseEst) {
-         var bottomVisionEst = vision.getBottomCameraEstimatedGlobalPose();
-         bottomVisionEst.ifPresent( est -> {
-            // Change our trust in the measurement based on the tags we can see
-            var estStdDevs = vision.getBottomEstimationStdDevs();
-            if (estStdDevs != null) {
-               poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-            }
-         });
-
-         var topVisionEst = vision.getTopCameraEstimatedGlobalPose();
-         topVisionEst.ifPresent( est -> {
-            // Change our trust in the measurement based on the tags we can see
-            var estStdDevs = vision.getTopEstimationStdDevs();
-            if (estStdDevs != null) {
-               poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-            }
-         });
-      } 
       
       //Update pose using gyro and encoders.
       this.poseEstimator.update(this.getRotation(), this.modulePositions);
@@ -238,39 +172,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       absStatePublisher.set(getCanCoderStates());
       chassisSpeedsPublisher.set(this.chassisSpeeds);
 
-      /**
-       * SmartDashboard.putData("Swerve Drive", new Sendable() {
-       * 
-       * @Override
-       *           public void initSendable(SendableBuilder builder) {
-       *           builder.setSmartDashboardType("SwerveDrive");
-       * 
-       * 
-       *           builder.addDoubleProperty("Front Left Angle", () ->
-       *           moduleIO[0].getTurnPositionInRotations(), null);
-       *           builder.addDoubleProperty("Front Left Velocity", () ->
-       *           moduleIO[0].getActualModuleState().speedMetersPerSecond, null);
-       * 
-       *           builder.addDoubleProperty("Front Right Angle", () ->
-       *           moduleIO[1].getTurnPositionInRotations(), null);
-       *           builder.addDoubleProperty("Front Right Velocity", () ->
-       *           moduleIO[1].getActualModuleState().speedMetersPerSecond, null);
-       * 
-       *           builder.addDoubleProperty("Back Left Angle", () ->
-       *           moduleIO[3].getTurnPositionInRotations(), null);
-       *           builder.addDoubleProperty("Back Left Velocity", () ->
-       *           moduleIO[3].getActualModuleState().speedMetersPerSecond, null);
-       * 
-       *           builder.addDoubleProperty("Back Right Angle", () ->
-       *           moduleIO[2].getTurnPositionInRotations(), null);
-       *           builder.addDoubleProperty("Back Right Velocity", () ->
-       *           moduleIO[2].getActualModuleState().speedMetersPerSecond, null);
-       * 
-       *           builder.addDoubleProperty("Robot Angle", () ->
-       *           getRotation().getRadFfiians(), null);
-       *           }
-       *           });
-       */
    }
 
    public void simulationPeriodic() {
@@ -319,12 +220,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       for (int i = 0; i < swerveModuleStates.length; i++) {
          this.moduleIO[i].setDesiredState(swerveModuleStates[i]);
       }
-   }
-
-   public Command driveForward() {
-      return this.run(() ->{
-      driveRelative(new ChassisSpeeds(2*this.leftTriggerVal.getAsDouble(), 0, 0));
-   });
    }
 
    /**
@@ -441,11 +336,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       return navx.getRotation2d().plus(offsetNavx);
    }
 
-   public Command togglePoseEst() {
-      return this.runOnce(() -> {
-         enablePoseEst = !enablePoseEst;
-      });
-   }
 
    /**
     * Get Pose2d of poseEstimator.
