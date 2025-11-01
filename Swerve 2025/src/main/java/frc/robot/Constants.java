@@ -34,23 +34,23 @@ public final class Constants {
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
     // THIS IS THE FIRST THING YOU SHOULD THINK ABOUT/SEE!!!
 
-    private static final RobotType ROBOT_TYPE = RobotType.ROBOT_2025_COMPETITION;
+    private static final RobotType ROBOT_TYPE = RobotType.ROBOT_2024_COMPETITION;
 
     public static final class SwerveModuleIOConfig{
         // Drive can ids start at front left from 1 and are odd
         // Turn can ids start at front left from 2 and are even
         // CANCoder ids start at front left from 10 and are sequential
         static SwerveModuleIOSparkMax moduleFL = new SwerveModuleIOSparkMax(//front left
-                0, 1,2, ROBOT_TYPE.turnIds[0],ROBOT_TYPE.moduleAngleOffsets[0], ROBOT_TYPE.moduleInverts[0]);
+                0, ROBOT_TYPE.ids[0][0], ROBOT_TYPE.ids[0][1], ROBOT_TYPE.ids[0][2], ROBOT_TYPE.moduleAngleOffsets[0], ROBOT_TYPE.moduleInverts[0]);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax moduleFR = new SwerveModuleIOSparkMax(//front right
-                1, 3,4,ROBOT_TYPE.turnIds[1],ROBOT_TYPE.moduleAngleOffsets[1], ROBOT_TYPE.moduleInverts[1]);
+                1, ROBOT_TYPE.ids[1][0], ROBOT_TYPE.ids[1][1], ROBOT_TYPE.ids[1][2], ROBOT_TYPE.moduleAngleOffsets[1], ROBOT_TYPE.moduleInverts[1]);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax moduleBL = new SwerveModuleIOSparkMax(//back left
-                2, 7,8,ROBOT_TYPE.turnIds[2],ROBOT_TYPE.moduleAngleOffsets[2], ROBOT_TYPE.moduleInverts[2]);
+                2, ROBOT_TYPE.ids[2][0], ROBOT_TYPE.ids[2][1], ROBOT_TYPE.ids[2][2], ROBOT_TYPE.moduleAngleOffsets[2], ROBOT_TYPE.moduleInverts[2]);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax moduleBR = new SwerveModuleIOSparkMax(//back right
-                3, 5,6,ROBOT_TYPE.turnIds[3],ROBOT_TYPE.moduleAngleOffsets[3], ROBOT_TYPE.moduleInverts[3]);
+                3, ROBOT_TYPE.ids[3][0], ROBOT_TYPE.ids[3][1], ROBOT_TYPE.ids[3][2], ROBOT_TYPE.moduleAngleOffsets[3], ROBOT_TYPE.moduleInverts[3]);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
     }
 

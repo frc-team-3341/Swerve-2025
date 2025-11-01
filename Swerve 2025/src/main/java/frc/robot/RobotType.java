@@ -14,26 +14,26 @@ public enum RobotType {
 
     // 2023 IAP Robot
     ROBOT_2023_IAP_SLOTH(new double[] {
-        - 62.51, //FL
+        - 62.51, //FL++
         -179.82, //FR
-         82.62, //BL
-         108.11}, //BR         
+         108.11, //BL
+         82.62}, //BR         
         
-        new int[] {9, 10, 12, 11},
+        new int[][] {{1, 2, 9}, {3, 4, 10}, {7, 8, 12}, {5, 6, 11}},
 
-        new boolean[] {false, true, true, false}
+        new boolean[] {false, true, false, true}
         ),
 
     // 2024 Competition Robot
     ROBOT_2024_COMPETITION(new double[] {
         - 12.21,   //FL
         -121.29,   //FR
-        - 40.97,   //BL
-        -133.154}, //BR
+        -133.154,   //BL
+        - 40.97}, //BR
 
-        new int[] {10, 11, 13, 12},
+        new int[][] {{1, 2, 10}, {3, 4, 11}, {5, 6, 12}, {7, 8, 13}},
 
-        new boolean[] {false, true, true, false}
+        new boolean[] {false, true, false, true}
         ),
 
     //2025 Competetion Robot        
@@ -43,14 +43,14 @@ public enum RobotType {
         - 83.51,  //BL
          153.13},  //BR
          
-         new int[] {9, 10, 12, 11},
+         new int[][] {{1, 2, 9}, {3, 4, 10}, {7, 8, 12}, {5, 6, 11}},
 
          new boolean[] {false, false, true, true}
          ),
 
     // Simulation robot
     ROBOT_SIMULATION(new double[] {0, 0, 0, 0},
-        new int[] {9, 10, 12, 11}, //ts doesnt matter cuz its not used for sim lOl
+        new int[][] {{1, 2, 9}, {3, 4, 10}, {7, 8, 12}, {5, 6, 11}}, //ts doesnt matter cuz its not used for sim lOl
 
         new boolean[] {false, false, true, true} //same w this 
         
@@ -60,13 +60,13 @@ public enum RobotType {
      * Angular offsets of CANCoders
      */
     public double[] moduleAngleOffsets;
-    public int[] turnIds;
+    public int[][] ids;
     public boolean[] moduleInverts;
 
 
-    private RobotType(double[] offsets, int[] turnIds, boolean[] moduleInverts) {
+    private RobotType(double[] offsets, int[][] ids, boolean[] moduleInverts) {
         this.moduleAngleOffsets = offsets;
-        this.turnIds = turnIds;
+        this.ids = ids;
         this.moduleInverts = moduleInverts;
     }
 
