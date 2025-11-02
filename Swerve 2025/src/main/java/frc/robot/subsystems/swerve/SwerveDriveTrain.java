@@ -240,20 +240,6 @@ public class SwerveDriveTrain extends SubsystemBase {
          this.moduleIO[i].setDesiredState(swerveModuleStates[i]);
       }
    }
-
-   public void setModuleVoltages(double driveVoltage, double turnVoltage) {
-      for (int i = 0; i < moduleIO.length; i++) {
-         moduleIO[i].setDriveVoltage(driveVoltage);
-         moduleIO[i].setTurnVoltage(turnVoltage);
-      }
-   }
-
-   public Command driveVoltages(double driveVoltage) {
-      return this.run(() -> {
-         setModuleVoltages(driveVoltage, 0);
-      });
-   }
-
    /**
     * Gets the SwerveModuleState[] for our use in code.
     */
@@ -414,10 +400,6 @@ public class SwerveDriveTrain extends SubsystemBase {
 
       // register the drivetrain simulation
       SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive);
-
-      // Figure out imu later
-      // simIMU = new SwerveIMUSimulation(mapleSimDrive.getGyroSimulation());
-      // imuReadingCache = new Cache<>(simIMU::getGyroRotation3d, 5L);
    }
 
 }
